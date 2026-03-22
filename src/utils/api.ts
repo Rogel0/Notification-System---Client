@@ -15,6 +15,12 @@ const api = axios.create({
   withCredentials: true,
 });
 
+// Runtime debug: print resolved base URL so deployed bundle shows what it will call.
+// This helps confirm whether `VITE_API_HOST` was injected correctly.
+// Remove or silence after verification.
+// eslint-disable-next-line no-console
+console.log("[app] API baseURL:", baseURL);
+
 api.interceptors.response.use(
   (response) => response,
   async (error) => {
