@@ -121,7 +121,17 @@ export function AuthPhoneShell({
                 >
                   {submitLabel}
                 </button>
+                <button
+                  type="button"
+                  onClick={() => {
+                    // placeholder for social login if needed
+                  }}
+                  className="w-full rounded-md border border-slate-300 px-4 py-3 text-sm"
+                >
+                  {socialLabel}
+                </button>
                 <div className="text-center text-sm text-muted-foreground">
+                  <p>{heroSubtitle}</p>
                   {modeLabel}{" "}
                   <Link to={switchTo} className="font-semibold">
                     {switchLabel}
@@ -139,6 +149,11 @@ export function AuthPhoneShell({
           alt="Image"
           className="absolute inset-0 h-full w-full object-cover dark:brightness-[0.2] dark:grayscale"
         />
+        {footer && (
+          <div className="absolute bottom-0 left-0 right-0 p-4 text-center text-xs text-white bg-black/50">
+            {footer}
+          </div>
+        )}
       </div>
     </div>
   );
