@@ -5,7 +5,8 @@ import axios from "axios";
 // - In production prefer `VITE_API_HOST` if provided, otherwise fall back to the current origin.
 const isDev = import.meta.env.DEV;
 const envHost = import.meta.env.VITE_API_HOST;
-const hostFallback = typeof window !== "undefined" ? window.location.origin : "";
+const hostFallback =
+  typeof window !== "undefined" ? window.location.origin : "";
 const apiHost = isDev ? "" : envHost || hostFallback;
 const baseURL = isDev ? "/api" : `${apiHost.replace(/\/$/, "")}/api`;
 
