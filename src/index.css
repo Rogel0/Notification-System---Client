@@ -18,3 +18,40 @@ body {
   @apply outline-none ring-2 ring-blue-500 ring-offset-2 ring-offset-slate-50;
 }
 
+/* Auth specific styling */
+.auth-root {
+  /* subtle diagonal background */
+  background-image: linear-gradient(
+    120deg,
+    rgba(248, 250, 252, 0.6),
+    rgba(255, 255, 255, 0.85)
+  );
+}
+
+.auth-card {
+  backdrop-filter: blur(6px);
+  background-color: rgba(255, 255, 255, 0.96);
+  max-height: calc(100vh - 120px);
+  overflow-y: auto;
+}
+
+.auth-form input,
+.auth-form textarea,
+.auth-form select {
+  @apply block w-full bg-transparent border-0 border-b border-slate-200 py-3 px-0 text-base text-slate-900 placeholder:text-slate-400 focus:border-slate-900 focus:outline-none transition;
+}
+
+.auth-form label span {
+  @apply text-xs font-semibold text-slate-500;
+}
+
+.auth-form .rounded-lg {
+  @apply shadow-sm;
+}
+
+/* prevent page overscroll on auth pages while allowing inner scroll on card */
+html,
+body,
+#root {
+  height: 100%;
+}

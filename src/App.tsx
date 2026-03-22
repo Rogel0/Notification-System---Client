@@ -1,69 +1,66 @@
 import {
   BrowserRouter as Router,
-  Routes,
+  Navigate,
   Route,
-  Link,
-  useLocation,
+  Routes,
 } from "react-router-dom";
-import Register from "./pages/Register";
+import Dashboard from "./pages/Dashboard";
 import Login from "./pages/Login";
 import Profile from "./pages/Profile";
+import Register from "./pages/Register";
+import AddPlan from "./pages/AddPlan";
+import CalendarPage from "./pages/CalendarPage";
+import { useAuth } from "./hooks/useAuth";
+import { AppShell } from "./components/layout/AppShell";
 
 function AppFrame() {
-  const location = useLocation();
-  const isAuthRoute =
-    location.pathname === "/login" ||
-    location.pathname === "/register" ||
-    location.pathname === "/";
+  const { isAuthenticated, loading } = useAuth();
+
+  if (loading) return null;
 
   return (
-    <>
-      {isAuthRoute ? null : (
-        <header className="sticky top-0 z-10 bg-white shadow">
-          <nav className="container mx-auto flex items-center justify-between px-4 py-4 md:px-8">
-            <div className="text-xl font-bold tracking-tight text-blue-700">
-              SalesPilot
-            </div>
-            <div className="space-x-2 md:space-x-6">
-              <Link
-                to="/register"
-                className="rounded px-3 py-2 font-medium text-blue-700 transition hover:bg-blue-50"
-              >
-                Register
-              </Link>
-              <Link
-                to="/login"
-                className="rounded px-3 py-2 font-medium text-blue-700 transition hover:bg-blue-50"
-              >
-                Login
-              </Link>
-              <Link
-                to="/profile"
-                className="rounded px-3 py-2 font-medium text-blue-700 transition hover:bg-blue-50"
-              >
-                Profile
-              </Link>
-            </div>
-          </nav>
-        </header>
-      )}
-
-      <main className={isAuthRoute ? "" : "min-h-screen bg-gray-50"}>
-        <Routes>
-          <Route path="/register" element={<Register />} />
-          <Route path="/login" element={<Login />} />
-          <Route path="/profile" element={<Profile />} />
-          <Route path="*" element={<Login />} />
-        </Routes>
-      </main>
-    </>
+    <main className="h-[90vh]">
+      <Routes>
+        <Route
+          path="/register"
+          element={
+            isAuthenticated ? <Navigate to="/dashboard" /> : <Register />
+          }
+        />
+        <Route
+          path="/login"
+          element={isAuthenticated ? <Navigate to="/dashboard" /> : <Login />}
+        />
+        <Route
+          path="/profile"
+          element={isAuthenticated ? <Profile /> : <Navigate to="/login" />}
+        />
+        <Route
+          path="/dashboard"
+          element={isAuthenticated ? <Dashboard /> : <Navigate to="/login" />}
+        />
+        <Route
+          path="/calendar"
+          element={
+            isAuthenticated ? <CalendarPage /> : <Navigate to="/login" />
+          }
+        />
+        <Route
+          path="/plan"
+          element={isAuthenticated ? <AddPlan /> : <Navigate to="/login" />}
+        />
+        <Route path="*" element={<Navigate to="/login" />} />
+      </Routes>
+    </main>
   );
 }
 
 function App() {
   return (
     <Router>
-      <AppFrame />
+      <AppShell>
+        <AppFrame />
+      </AppShell>
     </Router>
   );
 }
