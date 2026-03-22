@@ -1,7 +1,8 @@
 import axios from "axios";
 
+const apiHost = import.meta.env.VITE_API_HOST || "http://localhost:3000";
 const api = axios.create({
-  baseURL: "http://localhost:3000/api",
+  baseURL: `${apiHost}/api`,
   withCredentials: true,
 });
 
@@ -19,7 +20,7 @@ api.interceptors.response.use(
         if (currentPath !== "/login") {
           try {
             await axios.post(
-              "http://localhost:3000/api/logout",
+              `${apiHost}/api/logout`,
               {},
               { withCredentials: true },
             );
