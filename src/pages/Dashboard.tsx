@@ -31,6 +31,7 @@ const formatDateTime = (dt: string) =>
     dateStyle: "medium",
     timeStyle: "short",
     timeZone: "Asia/Manila",
+    timeZoneName: "short",
   }).format(new Date(dt));
 
 const buildReminderText = (item: NotificationEvent) => {
