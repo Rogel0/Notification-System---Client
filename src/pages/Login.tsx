@@ -28,10 +28,30 @@ const Login: React.FC = () => {
     try {
       localStorage.removeItem("session_expired");
       await api.post("/login", { email, password });
+      // After login, confirm profile can be fetched (server sets httpOnly cookie)
+      // Retry a couple times briefly to handle timing issues, then navigate.
+      let ok = false;
+      for (let i = 0; i < 3; i++) {
+        try {
+          // small delay between attempts
+          // eslint-disable-next-line no-await-in-loop
+          await new Promise((r) => setTimeout(r, i === 0 ? 100 : 250));
+          // eslint-disable-next-line no-await-in-loop
+          await api.get("/profile");
+          ok = true;
+          break;
+        } catch {
+          // ignore and retry
+        }
+      }
+      if (!ok) {
+        // still proceed but reload to ensure cookie is sent on fresh load
+        window.location.assign("/dashboard");
+        return;
+      }
       setSuccess("Login successful!");
       setEmail("");
       setPassword("");
-      // Force reload so authentication check can refresh from server cookie
       window.location.href = "/dashboard";
     } catch (err: unknown) {
       const message = axios.isAxiosError(err)

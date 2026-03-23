@@ -28,8 +28,11 @@ type NotificationEvent = {
 
 const formatDateTime = (dt: string) =>
   new Intl.DateTimeFormat("en-US", {
-    dateStyle: "medium",
-    timeStyle: "short",
+    year: "numeric",
+    month: "short",
+    day: "numeric",
+    hour: "numeric",
+    minute: "2-digit",
     timeZone: "Asia/Manila",
     timeZoneName: "short",
   }).format(new Date(dt));

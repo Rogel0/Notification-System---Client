@@ -20,8 +20,16 @@ export function useAuth() {
         // Log the error to help debug why auth check failed (CORS, network, 401, etc.)
         // eslint-disable-next-line no-console
         console.error("useAuth: profile check failed:", err);
-        setIsAuthenticated(false);
-        setLoading(false);
+        // Retry once after a short delay to allow server-set cookies to arrive
+        setTimeout(() => {
+          api
+            .get("/profile")
+            .then(() => {
+              setIsAuthenticated(true);
+            })
+            .catch(() => setIsAuthenticated(false))
+            .finally(() => setLoading(false));
+        }, 250);
       });
 
     // Safety timeout: if the request hangs (network issues), stop loading after 8s
@@ -45,6 +53,11 @@ export function useAuth() {
     } catch (err) {
       // ignore
     }
+    // clear client-side tokens/storage used by fallback
+    try {
+      localStorage.removeItem("token");
+      localStorage.removeItem("session_expired");
+    } catch {}
     setIsAuthenticated(false);
   }, []);
 

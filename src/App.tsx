@@ -16,7 +16,6 @@ import { AppShell } from "./components/layout/AppShell";
 function AppFrame() {
   const { isAuthenticated, loading } = useAuth();
 
-  if (loading) return null;
   if (loading)
     return (
       <div className="min-h-[90vh] flex items-center justify-center">
