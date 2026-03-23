@@ -30,6 +30,7 @@ const formatDateTime = (dt: string) =>
   new Intl.DateTimeFormat("en-US", {
     dateStyle: "medium",
     timeStyle: "short",
+    timeZone: "Asia/Manila",
   }).format(new Date(dt));
 
 const buildReminderText = (item: NotificationEvent) => {
@@ -43,9 +44,7 @@ const buildReminderText = (item: NotificationEvent) => {
 
   const remainingHours = Math.max(
     0,
-    Math.round(
-      (new Date(item.datetime).getTime() - Date.now()) / (1000 * 60 * 60),
-    ),
+    Math.ceil((Date.parse(item.datetime) - Date.now()) / (1000 * 60 * 60)),
   );
   return `Reminder: ${item.type} on ${formatDateTime(item.datetime)} — ${remainingHours}h remaining.`;
 };
