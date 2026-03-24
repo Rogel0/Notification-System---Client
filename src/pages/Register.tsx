@@ -47,7 +47,9 @@ const Register: React.FC = () => {
       setEmail("");
       setName("");
       setPhone("");
-      try { localStorage.removeItem("logged_out"); } catch {}
+      try {
+        localStorage.removeItem("logged_out");
+      } catch {}
       setDiscordInput("");
       setPassword("");
     } catch (err: unknown) {

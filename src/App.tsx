@@ -18,7 +18,9 @@ function AppFrame() {
   // If the user recently logged out, avoid blocking the UI on profile checks
   // which can hang if the backend returns 500. In that case, show the
   // unauthenticated routes immediately.
-  const loggedOut = typeof window !== 'undefined' && localStorage.getItem('logged_out') === 'true';
+  const loggedOut =
+    typeof window !== "undefined" &&
+    localStorage.getItem("logged_out") === "true";
 
   if (loading && !loggedOut)
     return (
