@@ -16,6 +16,8 @@ export function Input({ className, label, hint, error, id, ...props }: InputProp
   const hintId = hint ? `${inputId}-hint` : undefined
   const errorId = error ? `${inputId}-error` : undefined
 
+  // (removed debug logging)
+
   return (
     <div className="space-y-1.5">
       {label ? (

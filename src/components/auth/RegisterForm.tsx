@@ -13,11 +13,13 @@ type RegisterFormProps = {
   name: string;
   email: string;
   phone: string;
+  discordInput?: string;
   password: string;
   passwordStrength: string;
   onNameChange: (value: string) => void;
   onEmailChange: (value: string) => void;
   onPhoneChange: (value: string) => void;
+  onDiscordInputChange: (value: string) => void;
   onPasswordChange: (value: string) => void;
   onSubmit: (event: React.FormEvent<HTMLFormElement>) => void;
   onTogglePassword: () => void;
@@ -31,11 +33,13 @@ export function RegisterForm({
   name,
   email,
   phone,
+  discordInput,
   password,
   passwordStrength,
   onNameChange,
   onEmailChange,
   onPhoneChange,
+  onDiscordInputChange,
   onPasswordChange,
   onSubmit,
   onTogglePassword,
@@ -77,6 +81,14 @@ export function RegisterForm({
             value={phone}
             onChange={(e) => onPhoneChange(e.target.value)}
             placeholder="+15551234567"
+          />
+          <Input
+            label="Discord (username + tag or id)"
+            type="text"
+            value={discordInput ?? ""}
+            onChange={(e) => onDiscordInputChange(e.target.value)}
+            placeholder="e.g. 0026204 or 002#6204 or 123456789012345678"
+            hint="Send as username+tag without # or with #; numeric ID also accepted."
           />
           <Input
             label="Password"

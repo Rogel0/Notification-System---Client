@@ -15,8 +15,12 @@ import { AppShell } from "./components/layout/AppShell";
 
 function AppFrame() {
   const { isAuthenticated, loading } = useAuth();
+  // If the user recently logged out, avoid blocking the UI on profile checks
+  // which can hang if the backend returns 500. In that case, show the
+  // unauthenticated routes immediately.
+  const loggedOut = typeof window !== 'undefined' && localStorage.getItem('logged_out') === 'true';
 
-  if (loading)
+  if (loading && !loggedOut)
     return (
       <div className="min-h-[90vh] flex items-center justify-center">
         Loading…

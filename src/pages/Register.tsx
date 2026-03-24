@@ -8,6 +8,7 @@ const Register: React.FC = () => {
   const [email, setEmail] = useState("");
   const [name, setName] = useState("");
   const [phone, setPhone] = useState("");
+  const [discordInput, setDiscordInput] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
@@ -21,6 +22,8 @@ const Register: React.FC = () => {
     return "Weak";
   }, [password]);
 
+  // parent discordId state logging removed
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError("");
@@ -28,11 +31,24 @@ const Register: React.FC = () => {
     setIsLoading(true);
 
     try {
-      await api.post("/register", { email, password, name, phone });
+      const payload: any = {
+        email,
+        password,
+        name,
+        phone,
+      };
+
+      if (discordInput) {
+        payload.discord_input = discordInput;
+      }
+
+      await api.post("/register", payload);
       setSuccess("Registration successful!");
       setEmail("");
       setName("");
       setPhone("");
+      try { localStorage.removeItem("logged_out"); } catch {}
+      setDiscordInput("");
       setPassword("");
     } catch (err: unknown) {
       const message = axios.isAxiosError(err)
@@ -53,11 +69,13 @@ const Register: React.FC = () => {
           name={name}
           email={email}
           phone={phone}
+          discordInput={discordInput}
           password={password}
           passwordStrength={passwordStrength}
           onNameChange={setName}
           onEmailChange={setEmail}
           onPhoneChange={setPhone}
+          onDiscordInputChange={setDiscordInput}
           onPasswordChange={setPassword}
           onSubmit={handleSubmit}
           onTogglePassword={() => setShowPassword((val) => !val)}
