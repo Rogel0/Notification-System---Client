@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+﻿import { useEffect, useMemo, useState } from "react";
 import api from "../utils/api";
 import { Button } from "../components/ui/Button";
 import { Card } from "../components/ui/Card";
@@ -37,20 +37,31 @@ const formatDateTime = (dt: string) =>
     timeZoneName: "short",
   }).format(new Date(dt));
 
+const getUpcomingStageLabel = (dt: string) => {
+  const diffMs = Date.parse(dt) - Date.now();
+  const minute = 1000 * 60;
+  const hour = minute * 60;
+  const day = hour * 24;
+
+  if (diffMs <= 0) return "happening now";
+  if (diffMs <= 15 * minute) return "15 minutes before";
+  if (diffMs <= 3 * hour) return "3 hours before";
+  if (diffMs <= 24 * hour) return "24 hours before";
+  return "3 days before";
+};
+
 const buildReminderText = (item: NotificationEvent) => {
   if (item.status === "missed") {
-    if (item.type === "Deadline")
-      return `Urgent Reminder: You missed the deadline for ${item.title} on ${formatDateTime(item.datetime)}.`;
-    if (item.type === "Meeting")
-      return `Urgent Reminder: You missed the meeting on ${formatDateTime(item.datetime)}.`;
-    return `Urgent Reminder: You missed your business trip on ${formatDateTime(item.datetime)}.`;
+    if (item.type === "Deadline") {
+      return `Missed reminder window for deadline on ${formatDateTime(item.datetime)}.`;
+    }
+    if (item.type === "Meeting") {
+      return `Missed reminder window for meeting on ${formatDateTime(item.datetime)}.`;
+    }
+    return `Missed reminder window for business trip on ${formatDateTime(item.datetime)}.`;
   }
 
-  const remainingHours = Math.max(
-    0,
-    Math.ceil((Date.parse(item.datetime) - Date.now()) / (1000 * 60 * 60)),
-  );
-  return `Reminder: ${item.type} on ${formatDateTime(item.datetime)} — ${remainingHours}h remaining.`;
+  return `Next reminder stage: ${getUpcomingStageLabel(item.datetime)}. Event time: ${formatDateTime(item.datetime)}.`;
 };
 
 export default function Dashboard() {
@@ -172,7 +183,7 @@ export default function Dashboard() {
         </div>
 
         {loading ? (
-          <p className="text-sm text-slate-600">Loading events…</p>
+          <p className="text-sm text-slate-600">Loading events...</p>
         ) : (
           <div className="space-y-4">
             {error && (
@@ -193,8 +204,8 @@ export default function Dashboard() {
                   {notificationResult ? (
                     <p className="mt-1 text-xs">
                       Latest: Email{" "}
-                      {notificationResult.email?.success ? "✔" : "✖"} | SMS{" "}
-                      {notificationResult.sms?.success ? "✔" : "✖"}
+                      {notificationResult.email?.success ? "OK" : "Failed"} | SMS{" "}
+                      {notificationResult.sms?.success ? "OK" : "Failed"}
                     </p>
                   ) : (
                     <p className="mt-1 text-xs text-slate-400">No status yet</p>
@@ -223,8 +234,8 @@ export default function Dashboard() {
                         {item.time} - {item.title}
                       </span>
                       <span>
-                        Email: {item.status.email?.success ? "✔" : "✖"}; SMS:{" "}
-                        {item.status.sms?.success ? "✔" : "✖"}
+                        Email: {item.status.email?.success ? "OK" : "Failed"}; SMS:{" "}
+                        {item.status.sms?.success ? "OK" : "Failed"}
                         {item.status.email?.error &&
                           ` (${item.status.email.error})`}
                         {item.status.sms?.error &&
@@ -273,7 +284,7 @@ export default function Dashboard() {
 
             <Card className="p-4">
               <h2 className="text-lg font-semibold">
-                Upcoming notification events
+                Upcoming reminder schedule
               </h2>
               <div className="mt-3 space-y-3">
                 {events.length === 0 ? (
@@ -306,7 +317,7 @@ export default function Dashboard() {
                       </div>
                       {event.status === "completed" && (
                         <p className="mt-2 text-xs text-emerald-600">
-                          Completed • no further reminders
+                          Completed - no further reminders
                         </p>
                       )}
                     </div>
@@ -399,3 +410,5 @@ export default function Dashboard() {
     </div>
   );
 }
+
+
