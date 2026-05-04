@@ -41,7 +41,6 @@ const getUpcomingStageLabel = (dt: string) => {
   const diffMs = Date.parse(dt) - Date.now();
   const minute = 1000 * 60;
   const hour = minute * 60;
-  const day = hour * 24;
 
   if (diffMs <= 0) return "happening now";
   if (diffMs <= 15 * minute) return "15 minutes before";
@@ -410,5 +409,7 @@ export default function Dashboard() {
     </div>
   );
 }
+
+
 
 
