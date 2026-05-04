@@ -22,11 +22,13 @@ type NotificationEvent = {
   type: EventType;
   title: string;
   datetime: string;
+  datetime_label?: string;
   status: "upcoming" | "missed" | "completed";
   details?: string;
 };
 
-const formatDateTime = (dt: string) =>
+const formatDateTime = (event: NotificationEvent) =>
+  event.datetime_label ||
   new Intl.DateTimeFormat("en-US", {
     year: "numeric",
     month: "short",
@@ -35,7 +37,7 @@ const formatDateTime = (dt: string) =>
     minute: "2-digit",
     timeZone: "Asia/Manila",
     timeZoneName: "short",
-  }).format(new Date(dt));
+  }).format(new Date(event.datetime));
 
 const getUpcomingStageLabel = (dt: string) => {
   const diffMs = Date.parse(dt) - Date.now();
@@ -43,24 +45,37 @@ const getUpcomingStageLabel = (dt: string) => {
   const hour = minute * 60;
 
   if (diffMs <= 0) return "happening now";
-  if (diffMs <= 15 * minute) return "15 minutes before";
-  if (diffMs <= 3 * hour) return "3 hours before";
-  if (diffMs <= 24 * hour) return "24 hours before";
-  return "3 days before";
+
+  const reminderStages = [
+    { label: "3 days before", offset: 3 * 24 * hour },
+    { label: "24 hours before", offset: 24 * hour },
+    { label: "3 hours before", offset: 3 * hour },
+    { label: "1 hour before", offset: hour },
+    { label: "15 minutes before", offset: 15 * minute },
+    { label: "happening now", offset: 0 },
+  ];
+
+  for (const stage of reminderStages) {
+    if (diffMs >= stage.offset) {
+      return stage.label;
+    }
+  }
+
+  return "happening now";
 };
 
 const buildReminderText = (item: NotificationEvent) => {
   if (item.status === "missed") {
     if (item.type === "Deadline") {
-      return `Missed reminder window for deadline on ${formatDateTime(item.datetime)}.`;
+      return `Missed reminder window for deadline on ${formatDateTime(item)}.`;
     }
     if (item.type === "Meeting") {
-      return `Missed reminder window for meeting on ${formatDateTime(item.datetime)}.`;
+      return `Missed reminder window for meeting on ${formatDateTime(item)}.`;
     }
-    return `Missed reminder window for business trip on ${formatDateTime(item.datetime)}.`;
+    return `Missed reminder window for business trip on ${formatDateTime(item)}.`;
   }
 
-  return `Next reminder stage: ${getUpcomingStageLabel(item.datetime)}. Event time: ${formatDateTime(item.datetime)}.`;
+  return `Next reminder stage: ${getUpcomingStageLabel(item.datetime)}. Event time: ${formatDateTime(item)}.`;
 };
 
 export default function Dashboard() {
