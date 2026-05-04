@@ -23,6 +23,7 @@ type NotificationEvent = {
   title: string;
   datetime: string;
   datetime_label?: string;
+  next_stage?: string;
   status: "upcoming" | "missed" | "completed";
   details?: string;
 };
@@ -39,31 +40,6 @@ const formatDateTime = (event: NotificationEvent) =>
     timeZoneName: "short",
   }).format(new Date(event.datetime));
 
-const getUpcomingStageLabel = (dt: string) => {
-  const diffMs = Date.parse(dt) - Date.now();
-  const minute = 1000 * 60;
-  const hour = minute * 60;
-
-  if (diffMs <= 0) return "happening now";
-
-  const reminderStages = [
-    { label: "3 days before", offset: 3 * 24 * hour },
-    { label: "24 hours before", offset: 24 * hour },
-    { label: "3 hours before", offset: 3 * hour },
-    { label: "1 hour before", offset: hour },
-    { label: "15 minutes before", offset: 15 * minute },
-    { label: "happening now", offset: 0 },
-  ];
-
-  for (const stage of reminderStages) {
-    if (diffMs >= stage.offset) {
-      return stage.label;
-    }
-  }
-
-  return "happening now";
-};
-
 const buildReminderText = (item: NotificationEvent) => {
   if (item.status === "missed") {
     if (item.type === "Deadline") {
@@ -75,7 +51,13 @@ const buildReminderText = (item: NotificationEvent) => {
     return `Missed reminder window for business trip on ${formatDateTime(item)}.`;
   }
 
-  return `Next reminder stage: ${getUpcomingStageLabel(item.datetime)}. Event time: ${formatDateTime(item)}.`;
+  // Format stage label for display (remove underscores, capitalize)
+  const stageLabel = (item.next_stage || "upcoming")
+    .split("_")
+    .map((w) => w.charAt(0).toUpperCase() + w.slice(1))
+    .join(" ");
+
+  return `Next reminder stage: ${stageLabel}. Event time: ${formatDateTime(item)}.`;
 };
 
 export default function Dashboard() {
