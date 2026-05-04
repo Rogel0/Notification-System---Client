@@ -54,7 +54,7 @@ const buildReminderText = (item: NotificationEvent) => {
   // Format stage label for display (remove underscores, capitalize)
   const stageLabel = (item.next_stage || "upcoming")
     .split("_")
-    .map((w, i) => {
+    .map((w) => {
       // Don't capitalize numbers
       if (/^\d+$/.test(w)) return w;
       return w.charAt(0).toUpperCase() + w.slice(1);
