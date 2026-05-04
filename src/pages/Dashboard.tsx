@@ -110,8 +110,19 @@ export default function Dashboard() {
       await api.put(`/events/${id}/complete`);
       await fetchEvents();
     } catch (err: unknown) {
-      const message =
-        err instanceof Error ? err.message : "Failed to complete event";
+      let message = "Failed to complete event";
+      if (err && typeof err === "object") {
+        const axiosErr = err as any;
+        if (axiosErr.response?.data?.message) {
+          message = axiosErr.response.data.message;
+        } else if (axiosErr.response?.data?.error) {
+          message = axiosErr.response.data.error;
+        } else if (axiosErr.message) {
+          message = axiosErr.message;
+        }
+      } else if (err instanceof Error) {
+        message = err.message;
+      }
       setError(message);
     }
   };
