@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+﻿import React, { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import api from "../utils/api";
 import { Input } from "../components/ui/Input";
@@ -25,6 +25,7 @@ const Profile: React.FC = () => {
   const [saving, setSaving] = useState(false);
   const [formError, setFormError] = useState<string | null>(null);
   const [success, setSuccess] = useState<string | null>(null);
+  const [discordNotice, setDiscordNotice] = useState<string | null>(null);
 
   const profileEndpoints = ["/profile", "/auth/profile"];
 
@@ -74,8 +75,7 @@ const Profile: React.FC = () => {
     if (user) {
       setEmail(user.email || "");
       setPhone(user.phone || "");
-      // prefer discord_tag/username if available for display
-      setDiscordInput(user.discord_tag || user.discord_username || "");
+      setDiscordInput(user.discord_id || user.discord_tag || user.discord_username || "");
     }
   }, [user]);
 
@@ -84,24 +84,43 @@ const Profile: React.FC = () => {
   }
 
   function validatePhone(p: string) {
-    // simple E.164-ish check: optional +, 10-15 digits
     return p === "" || /^\+?[0-9]{10,15}$/.test(p);
   }
 
   function validateDiscord(d: string) {
     if (!d) return true;
-    // allow numeric IDs, username#1234, or username1234
+    const value = d.trim();
     return (
-      /^\d{17,20}$/.test(d) || /.+#\d{4}$/.test(d) || /.+\d{3,4}$/.test(d)
+      /^<@!?\d{17,20}>$/.test(value) ||
+      /^\d{17,20}$/.test(value) ||
+      /.+#\d{4}$/.test(value) ||
+      /^[A-Za-z0-9_.]{2,32}$/.test(value)
     );
+  }
+
+  function getDiscordNotice(d: string) {
+    const value = d.trim();
+    if (!value) return null;
+    if (/^<@!?\d{17,20}>$/.test(value) || /^\d{17,20}$/.test(value)) {
+      return "Discord ID detected. This is the most reliable option for private bot DMs.";
+    }
+    if (/.+#\d{4}$/.test(value)) {
+      return "Legacy Discord tag detected. This can work, but Discord ID is still more reliable.";
+    }
+    return "Username-only Discord detected. This may fail unless the bot already shares a server with that account. Prefer Discord ID when possible.";
   }
 
   async function handleSave() {
     setFormError(null);
     setSuccess(null);
+    setDiscordNotice(getDiscordNotice(discordInput));
     if (!validateEmail(email)) return setFormError("Please enter a valid email.");
     if (!validatePhone(phone)) return setFormError("Phone must be E.164 (e.g. +15551234567).");
-    if (!validateDiscord(discordInput)) return setFormError("Discord must be a numeric ID, username#1234, or username1234.");
+    if (!validateDiscord(discordInput)) {
+      return setFormError(
+        "Discord must be a numeric ID, Discord mention, username, or legacy username#1234.",
+      );
+    }
 
     setSaving(true);
     try {
@@ -136,9 +155,9 @@ const Profile: React.FC = () => {
           `Profile updated (${changedFields.join(", ")}). Plan reminders are sent separately.`,
         );
       }
-      // refresh profile
       const res = await fetchProfileWithFallback();
       setUser(res.data);
+      setDiscordNotice(getDiscordNotice(res.data.discord_id || res.data.discord_tag || res.data.discord_username || ""));
     } catch (err: any) {
       setFormError(
         err?.response?.data?.message || err?.message || "Failed to save profile",
@@ -198,10 +217,8 @@ const Profile: React.FC = () => {
             </div>
           ) : null}
 
-          {/* Editable form */}
           <div className="mt-6">
             <h2 className="text-sm font-semibold text-slate-700">Edit Contact</h2>
-            
 
             <div className="mt-4 grid gap-4 sm:grid-cols-2">
               <div>
@@ -226,12 +243,21 @@ const Profile: React.FC = () => {
                 <Input
                   label="Discord"
                   value={discordInput}
-                  onChange={(e) => setDiscordInput(e.target.value)}
-                  hint="Provide a numeric Discord ID (17-20 digits), username#1234, or username1234. Prefer username1234."
+                  onChange={(e) => {
+                    const nextValue = e.target.value;
+                    setDiscordInput(nextValue);
+                    setDiscordNotice(getDiscordNotice(nextValue));
+                  }}
+                  hint="Best: paste a numeric Discord ID or use Copy User ID. Username-only works sometimes; legacy username#1234 is also accepted."
                 />
               </div>
             </div>
 
+            {discordNotice ? (
+              <div className="mt-4 rounded-md border border-blue-200 bg-blue-50 px-4 py-2 text-sm text-blue-700">
+                {discordNotice}
+              </div>
+            ) : null}
             {formError ? (
               <div className="mt-4 rounded-md bg-rose-50 px-4 py-2 text-sm text-rose-700">
                 {formError}
@@ -250,11 +276,13 @@ const Profile: React.FC = () => {
               <Button
                 variant="secondary"
                 onClick={() => {
-                  // reset to server values
                   if (user) {
+                    const resetDiscord =
+                      user.discord_id || user.discord_tag || user.discord_username || "";
                     setEmail(user.email || "");
                     setPhone(user.phone || "");
-                    setDiscordInput(user.discord_tag || user.discord_username || "");
+                    setDiscordInput(resetDiscord);
+                    setDiscordNotice(getDiscordNotice(resetDiscord));
                     setFormError(null);
                     setSuccess(null);
                   }
@@ -263,10 +291,7 @@ const Profile: React.FC = () => {
                 Reset
               </Button>
             </div>
-            
           </div>
-
-          
         </div>
       </div>
     </div>

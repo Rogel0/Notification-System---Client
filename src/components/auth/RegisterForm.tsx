@@ -1,4 +1,4 @@
-import React from "react";
+﻿import React from "react";
 import {
   Card,
   CardContent,
@@ -83,12 +83,12 @@ export function RegisterForm({
             placeholder="+15551234567"
           />
           <Input
-            label="Discord (username + tag or id)"
+            label="Discord (ID, username, or legacy tag)"
             type="text"
             value={discordInput ?? ""}
             onChange={(e) => onDiscordInputChange(e.target.value)}
-            placeholder="e.g. 0026204 or 002#6204 or 123456789012345678"
-            hint="Send as username+tag without # or with #; numeric ID also accepted."
+            placeholder="e.g. 1372021504845418557 or juneee2401 or name#1234"
+            hint="Best: paste Discord User ID from Copy User ID. Username-only can work, but private DMs are most reliable with Discord ID."
           />
           <Input
             label="Password"
@@ -119,11 +119,11 @@ export function RegisterForm({
           </Button>
 
           <p className="text-center text-xs text-slate-500">
-            By clicking create account you agree to our{" "}
+            By clicking create account you agree to our {" "}
             <a href="#" className="text-blue-600 hover:underline">
               Terms
             </a>{" "}
-            and{" "}
+            and {" "}
             <a href="#" className="text-blue-600 hover:underline">
               Privacy
             </a>
